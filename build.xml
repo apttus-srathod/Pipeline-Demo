@@ -1,0 +1,46 @@
+<project  basedir="." xmlns:sf="antlib:com.salesforce">
+
+    <property file="build.properties"/>
+    <property environment="env"/>	
+	
+    <target name="retrieveSandBox">
+		<mkdir dir="Retrieve"/>    
+		<sf:retrieve
+		username="${username}"
+		password="${password}"
+		serverurl="${serverurl}"
+		retrieveTarget="Retrieve"
+		unpackaged="package.xml" />
+    </target>
+	
+	<target name="deployCheckProd">
+		<sf:deploy
+		username="${username}"
+		password="${password}"
+		serverurl="${serverurl}"
+		deployroot="Dev"
+		autoUpdatePackage="true"
+		ignoreWarnings="true" />
+	</target>
+	
+	<target name="deployProd">
+		<sf:deploy
+		username="${username}"
+		password="${password}"
+		serverurl="${serverurl}"
+		deployroot="Dev"
+		autoUpdatePackage="true"
+		ignoreWarnings="true"/>
+	</target>
+	
+	<target name="executeTestClasses">
+		<sf:deploy
+		username="${username}"
+		password="${password}"
+		serverurl="${serverurl}"
+		deployroot="testexecution"
+		testLevel="RunLocalTests"
+		autoUpdatePackage="true"
+		ignoreWarnings="true" />
+	</target>
+</project>

@@ -1,0 +1,56 @@
+# This is a sample build configuration for Other.
+# Check our guides at https://confluence.atlassian.com/x/5Q4SMw for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+# image: atlassian/default-image:latest
+  
+pipelines: 
+    custom: 
+      retrieve:
+          - step:
+              script: 
+                  - rm -rf /opt/atlassian/pipelines/agent/build/Retrieve 
+                  - echo "retriving components"
+                  - pwd
+                  - cat /etc/issue
+                  - ls
+                  - pwd
+                  - apt-get install ant
+                  - pwd
+                  - cp /opt/atlassian/pipelines/agent/build/ant-salesforce.jar /usr/share/ant/lib/
+                  - pwd
+                  - ant -buildfile build.xml retrieveSandBox  -Dusername=$SOURCE_USERNAME -Dpassword=$SOURCE_PASSWORD -Dserverurl=$SOURCE_URL
+                  - git init
+                  - git checkout master
+                  - git status
+                  - git config --global user.email "srathod@apttus.com"
+                  - git config --global user.name "Shivani Rathod"
+                  - git add --all
+                  - git status
+                  - git commit -m "retrieve committed"
+                  - git status
+                  - pwd
+                  - git config --global push.default matching		  
+                  - git config remote.origin.url https://$BB_USERNAME:$BB_PASS@bitbucket.org/apttus_srathod/pipeline-demo.git
+                  - git push origin master
+
+      deploycheck:
+           - step:
+                script:
+                   - echo "retriving components"
+                   - cp /opt/atlassian/pipelines/agent/build/ant-salesforce.jar /usr/share/ant/lib/
+                   - ant -buildfile build.xml deployCheckProd -Dusername=$TARGET_USERNAME -Dpassword=$TARGET_PASSWORD -Dserverurl=$SOURCE_URL
+      ValidateRetrieveFolder:
+           - step:
+                script:
+                   - echo "validating components"
+                   - cp /opt/atlassian/pipelines/agent/build/ant-salesforce.jar /usr/share/ant/lib/
+                   - ant -buildfile build.xml ValidateRetrieveFolder -Dusername=$SOURCE_USERNAME -Dpassword=$SOURCE_PASSWORD -Dserverurl=$SOURCE_URL             - ant -buildfile build.xml deployCheckProd -Dusername=$TARGET_USERNAME -Dpassword=$TARGET_PASSWORD -Dserverurl=$TARGET_URL
+      ExecuteTestClasses:
+           - step:
+                script:
+                   - echo "Executing test classes"
+                   - cp /opt/atlassian/pipelines/agent/build/ant-salesforce.jar /usr/share/ant/lib/
+                   - ant -buildfile build.xml executeTestClasses -Dusername=$SOURCE_USERNAME -Dpassword=$SOURCE_PASSWORD -Dserverurl=$SOURCE_URL
+             
